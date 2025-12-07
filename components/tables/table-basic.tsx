@@ -8,9 +8,12 @@ import {
   Cell,
   Column,
   ColumnDef,
-  ColumnFiltersState, ColumnOrderState, ColumnPinningState,
+  ColumnFiltersState,
+  ColumnOrderState,
+  ColumnPinningState,
   flexRender,
-  getCoreRowModel, Header,
+  getCoreRowModel,
+  Header,
   PaginationState,
   RowPinningState,
   RowSelectionState,
@@ -19,11 +22,11 @@ import {
   VisibilityState,
 } from '@tanstack/react-table'
 
-import {fetchData, Person} from '@/makeData'
+import {Person} from '@/makeData'
 import '@/app/index.css'
 import {Checkbox} from "@/components/ui/checkbox";
 import {arrayMove, horizontalListSortingStrategy, SortableContext, useSortable} from "@dnd-kit/sortable";
-import { CSS } from '@dnd-kit/utilities'
+import {CSS} from '@dnd-kit/utilities'
 import {
   closestCenter,
   DndContext,
@@ -42,7 +45,7 @@ const queryClient = new QueryClient()
 const DraggableTableHeader = ({header}: {
   header: Header<Person, unknown>
 }) => {
-  const { attributes, isDragging, listeners, setNodeRef, transform } = useSortable({id: header.column.id})
+  const {attributes, isDragging, listeners, setNodeRef, transform} = useSortable({id: header.column.id})
 
   const isPinned = header.column.getIsPinned()
   const isLastLeftPinnedColumn = isPinned === 'left' && header.column.getIsLastColumn('left')
@@ -62,93 +65,93 @@ const DraggableTableHeader = ({header}: {
   }
 
   return (
-      <th
-        key={header.id}
-        ref={setNodeRef}
-        colSpan={header.colSpan}
-        //IMPORTANT: This is where the magic happens!
-        style={style}
-      >
-        <div className="whitespace-nowrap">
-          {header.isPlaceholder ? null : (
-            <div
-              className={header.column.getCanSort() ? 'cursor-pointer select-none' : ''}
-              onClick={header.column.getToggleSortingHandler()}
-              title={header.column.getCanSort() ? header.column.getNextSortingOrder() === 'asc' ? 'Sort ascending' : header.column.getNextSortingOrder() === 'desc' ? 'Sort descending' : 'Clear sort' : undefined}
-            >
-              {flexRender(header.column.columnDef.header, header.getContext())}
-              {header.column.getCanPin() ? (
-                <>{header.column.getIndex(header.column.getIsPinned() || 'center')}</>
-              ) : null}
-              {{
-                asc: ' 🔼',
-                desc: ' 🔽',
-              }[header.column.getIsSorted() as string] ?? null}
-            </div>
-          )}
-        </div>
-        {!header.isPlaceholder && header.column.getCanPin() && (
-          <div className="flex gap-1 justify-center">
-            {header.column.getIsPinned() !== 'left' ? (
-              <button
-                className="border rounded px-2"
-                onClick={() => {
-                  header.column.pin('left')
-                }}
-              >
-                {'<='}
-              </button>
+    <th
+      key={header.id}
+      ref={setNodeRef}
+      colSpan={header.colSpan}
+      //IMPORTANT: This is where the magic happens!
+      style={style}
+    >
+      <div className="whitespace-nowrap">
+        {header.isPlaceholder ? null : (
+          <div
+            className={header.column.getCanSort() ? 'cursor-pointer select-none' : ''}
+            onClick={header.column.getToggleSortingHandler()}
+            title={header.column.getCanSort() ? header.column.getNextSortingOrder() === 'asc' ? 'Sort ascending' : header.column.getNextSortingOrder() === 'desc' ? 'Sort descending' : 'Clear sort' : undefined}
+          >
+            {flexRender(header.column.columnDef.header, header.getContext())}
+            {header.column.getCanPin() ? (
+              <>{header.column.getIndex(header.column.getIsPinned() || 'center')}</>
             ) : null}
-            {header.column.getIsPinned() ? (
-              <button
-                className="border rounded px-2"
-                onClick={() => {
-                  header.column.pin(false)
-                }}
-              >
-                X
-              </button>
-            ) : null}
-            {header.column.getIsPinned() !== 'right' ? (
-              <button
-                className="border rounded px-2"
-                onClick={() => {
-                  header.column.pin('right')
-                }}
-              >
-                {'=>'}
-              </button>
-            ) : null}
+            {{
+              asc: ' 🔼',
+              desc: ' 🔽',
+            }[header.column.getIsSorted() as string] ?? null}
           </div>
         )}
-        <div
-          {...{
-            onDoubleClick: () => header.column.resetSize(),
-            onMouseDown: header.getResizeHandler(),
-            onTouchStart: header.getResizeHandler(),
-            className: `resizer ${
-              header.column.getIsResizing() ? 'isResizing' : ''
-            }`,
-          }}
+      </div>
+      {!header.isPlaceholder && header.column.getCanPin() && (
+        <div className="flex gap-1 justify-center">
+          {header.column.getIsPinned() !== 'left' ? (
+            <button
+              className="border rounded px-2"
+              onClick={() => {
+                header.column.pin('left')
+              }}
+            >
+              {'<='}
+            </button>
+          ) : null}
+          {header.column.getIsPinned() ? (
+            <button
+              className="border rounded px-2"
+              onClick={() => {
+                header.column.pin(false)
+              }}
+            >
+              X
+            </button>
+          ) : null}
+          {header.column.getIsPinned() !== 'right' ? (
+            <button
+              className="border rounded px-2"
+              onClick={() => {
+                header.column.pin('right')
+              }}
+            >
+              {'=>'}
+            </button>
+          ) : null}
+        </div>
+      )}
+      <div
+        {...{
+          onDoubleClick: () => header.column.resetSize(),
+          onMouseDown: header.getResizeHandler(),
+          onTouchStart: header.getResizeHandler(),
+          className: `resizer ${
+            header.column.getIsResizing() ? 'isResizing' : ''
+          }`,
+        }}
+      />
+      {!header.isPlaceholder && header.column.getCanFilter() ? (
+        <input
+          value={(header.column.getFilterValue() ?? '') as string}
+          onChange={e => header.column.setFilterValue(e.target.value)}
+          placeholder={`Search...`}
         />
-        {!header.isPlaceholder && header.column.getCanFilter() ? (
-          <input
-            value={(header.column.getFilterValue() ?? '') as string}
-            onChange={e => header.column.setFilterValue(e.target.value)}
-            placeholder={`Search...`}
-          />
-        ) : null}
-        {!header.column.getIsPinned() && (
-          <button {...attributes} {...listeners}>
-            🟰
-          </button>
-        )}
-      </th>
-    )
+      ) : null}
+      {!header.column.getIsPinned() && (
+        <button {...attributes} {...listeners}>
+          🟰
+        </button>
+      )}
+    </th>
+  )
 }
 
-const DragAlongCell = ({ cell }: { cell: Cell<Person, unknown> }) => {
-  const { isDragging, setNodeRef, transform } = useSortable({id: cell.column.id})
+const DragAlongCell = ({cell}: { cell: Cell<Person, unknown> }) => {
+  const {isDragging, setNodeRef, transform} = useSortable({id: cell.column.id})
 
   const isPinned = cell.column.getIsPinned()
   const isLastLeftPinnedColumn = isPinned === 'left' && cell.column.getIsLastColumn('left')
@@ -405,15 +408,15 @@ function TableMainUI() {
   // Compute valid pinned row IDs (only those that have data)
   const validPinnedRowIds = React.useMemo(() => {
     const getRowId = (row: Person) => String(row.firstName + row.lastName);
-    
-    const validTopIds = (rowPinning.top ?? []).filter(id => 
+
+    const validTopIds = (rowPinning.top ?? []).filter(id =>
       pinnedRowsData.top.some(row => getRowId(row) === id)
     );
-    
-    const validBottomIds = (rowPinning.bottom ?? []).filter(id => 
+
+    const validBottomIds = (rowPinning.bottom ?? []).filter(id =>
       pinnedRowsData.bottom.some(row => getRowId(row) === id)
     );
-    
+
     return {
       top: validTopIds,
       bottom: validBottomIds,
@@ -422,8 +425,8 @@ function TableMainUI() {
 
   // Clean up invalid pinned row IDs in state
   useEffect(() => {
-    if (validPinnedRowIds.top.length !== (rowPinning.top ?? []).length || 
-        validPinnedRowIds.bottom.length !== (rowPinning.bottom ?? []).length) {
+    if (validPinnedRowIds.top.length !== (rowPinning.top ?? []).length ||
+      validPinnedRowIds.bottom.length !== (rowPinning.bottom ?? []).length) {
       setRowPinning({
         top: validPinnedRowIds.top,
         bottom: validPinnedRowIds.bottom,
@@ -572,7 +575,7 @@ function TableMainUI() {
 
   // reorder columns after drag & drop
   function handleDragEnd(event: DragEndEvent) {
-    const { active, over } = event
+    const {active, over} = event
     if (active && over && active.id !== over.id) {
       setColumnOrder(columnOrder => {
         const oldIndex = columnOrder.indexOf(active.id as string)
@@ -637,221 +640,220 @@ function TableMainUI() {
       </button>
 
 
+      {/*NOTE: This provider creates div elements, so don't nest inside of <table> elements*/}
+      <DndContext
+        collisionDetection={closestCenter}
+        modifiers={[restrictToHorizontalAxis]}
+        onDragEnd={handleDragEnd}
+        sensors={sensors}
+      >
 
-    {/*NOTE: This provider creates div elements, so don't nest inside of <table> elements*/}
-    <DndContext
-      collisionDetection={closestCenter}
-      modifiers={[restrictToHorizontalAxis]}
-      onDragEnd={handleDragEnd}
-      sensors={sensors}
-    >
-
-      <div className="table-container">
-        <table style={{width: table.getTotalSize(),}}>
-          <thead>
-          {table.getHeaderGroups().map(headerGroup => (
-            <tr key={headerGroup.id}>
-              <SortableContext
-                items={columnOrder}
-                strategy={horizontalListSortingStrategy}
-              >
-                {headerGroup.headers.map((header) => (
-                  <DraggableTableHeader key={header.id} header={header} />
-                ))}
-              </SortableContext>
-
-              {/*{headerGroup.headers.map(header => {*/}
-              {/*  const {column} = header*/}
-              {/*  return (*/}
-              {/*    <th*/}
-              {/*      key={header.id}*/}
-              {/*      colSpan={header.colSpan}*/}
-              {/*      //IMPORTANT: This is where the magic happens!*/}
-              {/*      style={{...getCommonPinningStyles(column)}}*/}
-              {/*    >*/}
-              {/*      <div className="whitespace-nowrap">*/}
-              {/*        {header.isPlaceholder ? null : (*/}
-              {/*          <div*/}
-              {/*            className={header.column.getCanSort() ? 'cursor-pointer select-none' : ''}*/}
-              {/*            onClick={header.column.getToggleSortingHandler()}*/}
-              {/*            title={header.column.getCanSort() ? header.column.getNextSortingOrder() === 'asc' ? 'Sort ascending' : header.column.getNextSortingOrder() === 'desc' ? 'Sort descending' : 'Clear sort' : undefined}*/}
-              {/*          >*/}
-              {/*            {flexRender(header.column.columnDef.header, header.getContext())}*/}
-              {/*            {header.column.getCanPin() ? (*/}
-              {/*              <>{column.getIndex(column.getIsPinned() || 'center')}</>*/}
-              {/*            ) : null}*/}
-              {/*            {{*/}
-              {/*              asc: ' 🔼',*/}
-              {/*              desc: ' 🔽',*/}
-              {/*            }[header.column.getIsSorted() as string] ?? null}*/}
-              {/*          </div>*/}
-              {/*        )}*/}
-              {/*      </div>*/}
-              {/*      {!header.isPlaceholder && header.column.getCanPin() && (*/}
-              {/*        <div className="flex gap-1 justify-center">*/}
-              {/*          {header.column.getIsPinned() !== 'left' ? (*/}
-              {/*            <button*/}
-              {/*              className="border rounded px-2"*/}
-              {/*              onClick={() => {*/}
-              {/*                header.column.pin('left')*/}
-              {/*              }}*/}
-              {/*            >*/}
-              {/*              {'<='}*/}
-              {/*            </button>*/}
-              {/*          ) : null}*/}
-              {/*          {header.column.getIsPinned() ? (*/}
-              {/*            <button*/}
-              {/*              className="border rounded px-2"*/}
-              {/*              onClick={() => {*/}
-              {/*                header.column.pin(false)*/}
-              {/*              }}*/}
-              {/*            >*/}
-              {/*              X*/}
-              {/*            </button>*/}
-              {/*          ) : null}*/}
-              {/*          {header.column.getIsPinned() !== 'right' ? (*/}
-              {/*            <button*/}
-              {/*              className="border rounded px-2"*/}
-              {/*              onClick={() => {*/}
-              {/*                header.column.pin('right')*/}
-              {/*              }}*/}
-              {/*            >*/}
-              {/*              {'=>'}*/}
-              {/*            </button>*/}
-              {/*          ) : null}*/}
-              {/*        </div>*/}
-              {/*      )}*/}
-              {/*      <div*/}
-              {/*        {...{*/}
-              {/*          onDoubleClick: () => header.column.resetSize(),*/}
-              {/*          onMouseDown: header.getResizeHandler(),*/}
-              {/*          onTouchStart: header.getResizeHandler(),*/}
-              {/*          className: `resizer ${*/}
-              {/*            header.column.getIsResizing() ? 'isResizing' : ''*/}
-              {/*          }`,*/}
-              {/*        }}*/}
-              {/*      />*/}
-              {/*      {!header.isPlaceholder && header.column.getCanFilter() ? (*/}
-              {/*        <input*/}
-              {/*          value={(header.column.getFilterValue() ?? '') as string}*/}
-              {/*          onChange={e => header.column.setFilterValue(e.target.value)}*/}
-              {/*          placeholder={`Search...`}*/}
-              {/*        />*/}
-              {/*      ) : null}*/}
-              {/*    </th>*/}
-              {/*  )*/}
-              {/*})}*/}
-            </tr>
-          ))}
-          </thead>
-          <tbody>
-
-          {/*{table.getRowModel().rows.map((row) => (*/}
-          {/*  <tr key={row.id}>*/}
-          {/*    {row.getVisibleCells().map((cell) => (*/}
-          {/*      <SortableContext*/}
-          {/*        key={cell.id}*/}
-          {/*        items={columnOrder}*/}
-          {/*        strategy={horizontalListSortingStrategy}*/}
-          {/*      >*/}
-          {/*        <DragAlongCell key={cell.id} cell={cell} />*/}
-          {/*      </SortableContext>*/}
-          {/*    ))}*/}
-          {/*  </tr>*/}
-          {/*))}*/}
-
-          {table.getTopRows().map(row => (
-            <tr key={row.id}
-                style={{
-                  backgroundColor: 'lightblue', position: 'sticky',
-                  top: row.getIsPinned() === 'top' ? `${row.getPinnedIndex() * 28 + 78}px` : undefined,
-                  zIndex: 5,
-                }}
-            >
-              {row.getVisibleCells().map((cell) => (
+        <div className="table-container">
+          <table style={{width: table.getTotalSize(),}}>
+            <thead>
+            {table.getHeaderGroups().map(headerGroup => (
+              <tr key={headerGroup.id}>
                 <SortableContext
-                  key={cell.id}
                   items={columnOrder}
                   strategy={horizontalListSortingStrategy}
                 >
-                  <DragAlongCell key={cell.id} cell={cell} />
+                  {headerGroup.headers.map((header) => (
+                    <DraggableTableHeader key={header.id} header={header}/>
+                  ))}
                 </SortableContext>
-                // <td key={cell.id}>{flexRender(cell.column.columnDef.cell, cell.getContext())}</td>
-              ))}
-            </tr>
-          ))}
 
-          {table.getCenterRows().map(row => {
-            return (
-              <Fragment key={row.id}>
-                <tr onClick={row.getToggleExpandedHandler()} style={{cursor: 'pointer'}}>
-                  {row.getVisibleCells().map((cell) => {
-                    const {column} = cell
-                    return (
-                      <SortableContext
-                        key={cell.id}
-                        items={columnOrder}
-                        strategy={horizontalListSortingStrategy}
-                      >
-                        <DragAlongCell key={cell.id} cell={cell} />
-                      </SortableContext>
-                      // <td
-                      //   key={cell.id}
-                      //   //IMPORTANT: This is where the magic happens!
-                      //   style={{...getCommonPinningStyles(column)}}
-                      // >
-                      //   {flexRender(
-                      //     cell.column.columnDef.cell,
-                      //     cell.getContext()
-                      //   )}
-                      // </td>
-                    )
-                  })}
-                </tr>
-                {row.getIsExpanded() && (
-                  <tr>
-                    <td colSpan={row.getVisibleCells().length}>
+                {/*{headerGroup.headers.map(header => {*/}
+                {/*  const {column} = header*/}
+                {/*  return (*/}
+                {/*    <th*/}
+                {/*      key={header.id}*/}
+                {/*      colSpan={header.colSpan}*/}
+                {/*      //IMPORTANT: This is where the magic happens!*/}
+                {/*      style={{...getCommonPinningStyles(column)}}*/}
+                {/*    >*/}
+                {/*      <div className="whitespace-nowrap">*/}
+                {/*        {header.isPlaceholder ? null : (*/}
+                {/*          <div*/}
+                {/*            className={header.column.getCanSort() ? 'cursor-pointer select-none' : ''}*/}
+                {/*            onClick={header.column.getToggleSortingHandler()}*/}
+                {/*            title={header.column.getCanSort() ? header.column.getNextSortingOrder() === 'asc' ? 'Sort ascending' : header.column.getNextSortingOrder() === 'desc' ? 'Sort descending' : 'Clear sort' : undefined}*/}
+                {/*          >*/}
+                {/*            {flexRender(header.column.columnDef.header, header.getContext())}*/}
+                {/*            {header.column.getCanPin() ? (*/}
+                {/*              <>{column.getIndex(column.getIsPinned() || 'center')}</>*/}
+                {/*            ) : null}*/}
+                {/*            {{*/}
+                {/*              asc: ' 🔼',*/}
+                {/*              desc: ' 🔽',*/}
+                {/*            }[header.column.getIsSorted() as string] ?? null}*/}
+                {/*          </div>*/}
+                {/*        )}*/}
+                {/*      </div>*/}
+                {/*      {!header.isPlaceholder && header.column.getCanPin() && (*/}
+                {/*        <div className="flex gap-1 justify-center">*/}
+                {/*          {header.column.getIsPinned() !== 'left' ? (*/}
+                {/*            <button*/}
+                {/*              className="border rounded px-2"*/}
+                {/*              onClick={() => {*/}
+                {/*                header.column.pin('left')*/}
+                {/*              }}*/}
+                {/*            >*/}
+                {/*              {'<='}*/}
+                {/*            </button>*/}
+                {/*          ) : null}*/}
+                {/*          {header.column.getIsPinned() ? (*/}
+                {/*            <button*/}
+                {/*              className="border rounded px-2"*/}
+                {/*              onClick={() => {*/}
+                {/*                header.column.pin(false)*/}
+                {/*              }}*/}
+                {/*            >*/}
+                {/*              X*/}
+                {/*            </button>*/}
+                {/*          ) : null}*/}
+                {/*          {header.column.getIsPinned() !== 'right' ? (*/}
+                {/*            <button*/}
+                {/*              className="border rounded px-2"*/}
+                {/*              onClick={() => {*/}
+                {/*                header.column.pin('right')*/}
+                {/*              }}*/}
+                {/*            >*/}
+                {/*              {'=>'}*/}
+                {/*            </button>*/}
+                {/*          ) : null}*/}
+                {/*        </div>*/}
+                {/*      )}*/}
+                {/*      <div*/}
+                {/*        {...{*/}
+                {/*          onDoubleClick: () => header.column.resetSize(),*/}
+                {/*          onMouseDown: header.getResizeHandler(),*/}
+                {/*          onTouchStart: header.getResizeHandler(),*/}
+                {/*          className: `resizer ${*/}
+                {/*            header.column.getIsResizing() ? 'isResizing' : ''*/}
+                {/*          }`,*/}
+                {/*        }}*/}
+                {/*      />*/}
+                {/*      {!header.isPlaceholder && header.column.getCanFilter() ? (*/}
+                {/*        <input*/}
+                {/*          value={(header.column.getFilterValue() ?? '') as string}*/}
+                {/*          onChange={e => header.column.setFilterValue(e.target.value)}*/}
+                {/*          placeholder={`Search...`}*/}
+                {/*        />*/}
+                {/*      ) : null}*/}
+                {/*    </th>*/}
+                {/*  )*/}
+                {/*})}*/}
+              </tr>
+            ))}
+            </thead>
+            <tbody>
+
+            {/*{table.getRowModel().rows.map((row) => (*/}
+            {/*  <tr key={row.id}>*/}
+            {/*    {row.getVisibleCells().map((cell) => (*/}
+            {/*      <SortableContext*/}
+            {/*        key={cell.id}*/}
+            {/*        items={columnOrder}*/}
+            {/*        strategy={horizontalListSortingStrategy}*/}
+            {/*      >*/}
+            {/*        <DragAlongCell key={cell.id} cell={cell} />*/}
+            {/*      </SortableContext>*/}
+            {/*    ))}*/}
+            {/*  </tr>*/}
+            {/*))}*/}
+
+            {table.getTopRows().map(row => (
+              <tr key={row.id}
+                  style={{
+                    backgroundColor: 'lightblue', position: 'sticky',
+                    top: row.getIsPinned() === 'top' ? `${row.getPinnedIndex() * 28 + 78}px` : undefined,
+                    zIndex: 5,
+                  }}
+              >
+                {row.getVisibleCells().map((cell) => (
+                  <SortableContext
+                    key={cell.id}
+                    items={columnOrder}
+                    strategy={horizontalListSortingStrategy}
+                  >
+                    <DragAlongCell key={cell.id} cell={cell}/>
+                  </SortableContext>
+                  // <td key={cell.id}>{flexRender(cell.column.columnDef.cell, cell.getContext())}</td>
+                ))}
+              </tr>
+            ))}
+
+            {table.getCenterRows().map(row => {
+              return (
+                <Fragment key={row.id}>
+                  <tr onClick={row.getToggleExpandedHandler()} style={{cursor: 'pointer'}}>
+                    {row.getVisibleCells().map((cell) => {
+                      const {column} = cell
+                      return (
+                        <SortableContext
+                          key={cell.id}
+                          items={columnOrder}
+                          strategy={horizontalListSortingStrategy}
+                        >
+                          <DragAlongCell key={cell.id} cell={cell}/>
+                        </SortableContext>
+                        // <td
+                        //   key={cell.id}
+                        //   //IMPORTANT: This is where the magic happens!
+                        //   style={{...getCommonPinningStyles(column)}}
+                        // >
+                        //   {flexRender(
+                        //     cell.column.columnDef.cell,
+                        //     cell.getContext()
+                        //   )}
+                        // </td>
+                      )
+                    })}
+                  </tr>
+                  {row.getIsExpanded() && (
+                    <tr>
+                      <td colSpan={row.getVisibleCells().length}>
                     <pre style={{fontSize: '10px'}}>
                       <code>{JSON.stringify(row.original, null, 2)}</code>
                     </pre>
-                      <div>{row.id}</div>
-                      <div>{row.getVisibleCells().length}</div>
-                      <div>{row.getAllCells().length}</div>
-                      <div>{row.getCanSelect() ? 'yes' : 'no'}</div>
-                      <div>{row.getCanExpand() ? 'yes' : 'no'}</div>
-                      <div>{row.getIsExpanded() ? 'yes' : 'no'}</div>
-                    </td>
-                  </tr>
-                )}
-              </Fragment>
-            )
-          })}
+                        <div>{row.id}</div>
+                        <div>{row.getVisibleCells().length}</div>
+                        <div>{row.getAllCells().length}</div>
+                        <div>{row.getCanSelect() ? 'yes' : 'no'}</div>
+                        <div>{row.getCanExpand() ? 'yes' : 'no'}</div>
+                        <div>{row.getIsExpanded() ? 'yes' : 'no'}</div>
+                      </td>
+                    </tr>
+                  )}
+                </Fragment>
+              )
+            })}
 
-          {table.getBottomRows().map(row => (
-            <tr key={row.id}
-                style={{
-                  backgroundColor: 'lightblue', position: 'sticky',
-                  bottom: row.getIsPinned() === 'bottom' ? `${(table.getBottomRows().length - 1 - row.getPinnedIndex()) * 28}px` : undefined,
-                  zIndex: 5,
-                }}
-            >
-              {row.getVisibleCells().map((cell) =>(
-                <SortableContext
-                  key={cell.id}
-                  items={columnOrder}
-                  strategy={horizontalListSortingStrategy}
-                >
-                  <DragAlongCell key={cell.id} cell={cell} />
-                </SortableContext>
-                // <td key={cell.id}>{flexRender(cell.column.columnDef.cell, cell.getContext())}</td>
-              ))}
-            </tr>
-          ))}
-          </tbody>
-        </table>
-      </div>
+            {table.getBottomRows().map(row => (
+              <tr key={row.id}
+                  style={{
+                    backgroundColor: 'lightblue', position: 'sticky',
+                    bottom: row.getIsPinned() === 'bottom' ? `${(table.getBottomRows().length - 1 - row.getPinnedIndex()) * 28}px` : undefined,
+                    zIndex: 5,
+                  }}
+              >
+                {row.getVisibleCells().map((cell) => (
+                  <SortableContext
+                    key={cell.id}
+                    items={columnOrder}
+                    strategy={horizontalListSortingStrategy}
+                  >
+                    <DragAlongCell key={cell.id} cell={cell}/>
+                  </SortableContext>
+                  // <td key={cell.id}>{flexRender(cell.column.columnDef.cell, cell.getContext())}</td>
+                ))}
+              </tr>
+            ))}
+            </tbody>
+          </table>
+        </div>
 
-    </DndContext>
+      </DndContext>
 
 
       <div className="h-2"/>
