@@ -77,7 +77,7 @@ const DraggableTableHeader = ({header}: {
           <div
             className={header.column.getCanSort() ? 'cursor-pointer select-none' : ''}
             onClick={header.column.getToggleSortingHandler()}
-            title={header.column.getCanSort() ? header.column.getNextSortingOrder() === 'asc' ? 'Sort ascending' : header.column.getNextSortingOrder() === 'desc' ? 'Sort descending' : 'Clear sort' : undefined}
+            title={header.column.getCanSort() ? header.column.getNextSortingOrder() === 'asc' ? 'Sort ascending' : header.column.getNextSortingOrder() === 'desc' ? 'Sort descending' : 'Clear sort' : ''}
           >
             {flexRender(header.column.columnDef.header, header.getContext())}
             {header.column.getCanPin() ? (
@@ -176,7 +176,6 @@ const DragAlongCell = ({cell}: { cell: Cell<Person, unknown> }) => {
   )
 }
 
-
 //These are the important styles to make sticky column pinning work!
 //Apply styles like this using your CSS strategy of choice with this kind of logic to head cells, data cells, footer cells, etc.
 //View the index.css file for more needed styles such as border-collapse: separate
@@ -185,7 +184,7 @@ const getCommonPinningStyles = (column: Column<Person>): CSSProperties => {
   const isLastLeftPinnedColumn = isPinned === 'left' && column.getIsLastColumn('left')
   const isFirstRightPinnedColumn = isPinned === 'right' && column.getIsFirstColumn('right')
   return {
-    boxShadow: isLastLeftPinnedColumn ? '-4px 0 4px -4px gray inset' : isFirstRightPinnedColumn ? '4px 0 4px -4px gray inset' : undefined,
+    boxShadow: isLastLeftPinnedColumn ? '-4px 0 4px gray inset' : isFirstRightPinnedColumn ? '4px 0 4px gray inset' : undefined,
     left: isPinned === 'left' ? `${column.getStart('left')}px` : undefined,
     right: isPinned === 'right' ? `${column.getAfter('right')}px` : undefined,
     opacity: isPinned ? 0.95 : 1,
@@ -197,8 +196,8 @@ const getCommonPinningStyles = (column: Column<Person>): CSSProperties => {
 
 
 function TableMainUI() {
-  const columns = React.useMemo<ColumnDef<Person>[]>(
-    () => [
+  const columns = React.useMemo<ColumnDef<Person>[]>
+    (() => [
       {
         id: 'pin',
         header: () => 'Pin',
@@ -323,7 +322,7 @@ function TableMainUI() {
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({})
   const [rowSelection, setRowSelection] = useState<RowSelectionState>({}) //manage your own row selection state
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
-  const [sorting, setSorting] = useState<SortingState>([])
+  const [sorting, setSorting] = useState<SortingState>([]);
   const [canExpandGlobally, setCanExpandGlobally] = useState(true);
   // const [expanded, setExpanded] = useState<ExpandedState>({})
   const [columnOrder, setColumnOrder] = useState<ColumnOrderState>(() => columns.map(c => c.id!))
@@ -363,7 +362,7 @@ function TableMainUI() {
   // Sync pinned rows data when rowPinning state changes or data loads
   useEffect(() => {
     const getRowId = (row: Person) => String(row.firstName + row.lastName);
-    const currentPageData = dataQuery.data?.rows ?? [];
+    const currentPageData: Person[] = dataQuery.data?.rows ?? [];
 
     // Create a map of all available rows for lookup
     const allAvailableRows = new Map<string, Person>();
@@ -436,7 +435,7 @@ function TableMainUI() {
 
   // Merge pinned rows with current page data
   const mergedData = React.useMemo(() => {
-    const currentPageData = dataQuery.data?.rows ?? [];
+    const currentPageData: Person[] = dataQuery.data?.rows ?? [];
     const getRowId = (row: Person) => String(row.firstName + row.lastName);
 
     // Get pinned rows from stored data, matching the order in validPinnedRowIds
@@ -454,7 +453,7 @@ function TableMainUI() {
     const pinnedBottomIds = new Set(validPinnedRowIds.bottom);
 
     // Filter out pinned rows from current page data to avoid duplicates
-    const filteredPageData = currentPageData.filter(row => {
+    const filteredPageData = currentPageData.filter((row: Person) => {
       const rowId = getRowId(row);
       return !pinnedTopIds.has(rowId) && !pinnedBottomIds.has(rowId);
     });
@@ -473,7 +472,7 @@ function TableMainUI() {
       const newState = typeof updater === 'function' ? updater(old) : updater;
 
       // Update pinned rows data when pinning state changes
-      const currentPageData = dataQuery.data?.rows ?? [];
+      const currentPageData: Person[] = dataQuery.data?.rows ?? [];
       const getRowId = (row: Person) => String(row.firstName + row.lastName);
 
       // Create a map of all available rows (current page + already pinned rows) for lookup
@@ -565,7 +564,7 @@ function TableMainUI() {
     getCoreRowModel: getCoreRowModel(),
     manualPagination: true, //we're doing manual "server-side" pagination
     // getPaginationRowModel: getPaginationRowModel(), // If only doing manual pagination, you don't need this
-    //getSortedRowModel: getSortedRowModel(), //not needed for manual sorting
+    //getSortedRowModel: getSortedRowModel(); //not needed for manual sorting
     manualSorting: true, //use pre-sorted row model instead of sorted row model
     manualFiltering: true,
     columnResizeMode: 'onChange',
@@ -607,7 +606,7 @@ function TableMainUI() {
             Toggle All
           </label>
         </div>
-        {/*{table.getAllLeafColumns().filter(column => column.getCanHide()).map(column => {*/}
+        {/*{table.getAllLeafColumns().filter(column => column.getCanHide()).map(column => {*/
         {table.getAllLeafColumns().map(column => {
           return (
             <div key={column.id} className="px-1">
@@ -662,285 +661,18 @@ function TableMainUI() {
                   ))}
                 </SortableContext>
 
-                {/*{headerGroup.headers.map(header => {*/}
-                {/*  const {column} = header*/}
-                {/*  return (*/}
-                {/*    <th*/}
-                {/*      key={header.id}*/}
-                {/*      colSpan={header.colSpan}*/}
-                {/*      //IMPORTANT: This is where the magic happens!*/}
-                {/*      style={{...getCommonPinningStyles(column)}}*/}
-                {/*    >*/}
-                {/*      <div className="whitespace-nowrap">*/}
-                {/*        {header.isPlaceholder ? null : (*/}
-                {/*          <div*/}
-                {/*            className={header.column.getCanSort() ? 'cursor-pointer select-none' : ''}*/}
-                {/*            onClick={header.column.getToggleSortingHandler()}*/}
-                {/*            title={header.column.getCanSort() ? header.column.getNextSortingOrder() === 'asc' ? 'Sort ascending' : header.column.getNextSortingOrder() === 'desc' ? 'Sort descending' : 'Clear sort' : undefined}*/}
-                {/*          >*/}
-                {/*            {flexRender(header.column.columnDef.header, header.getContext())}*/}
-                {/*            {header.column.getCanPin() ? (*/}
-                {/*              <>{column.getIndex(column.getIsPinned() || 'center')}</>*/}
-                {/*            ) : null}*/}
-                {/*            {{*/}
-                {/*              asc: ' 🔼',*/}
-                {/*              desc: ' 🔽',*/}
-                {/*            }[header.column.getIsSorted() as string] ?? null}*/}
-                {/*          </div>*/}
-                {/*        )}*/}
-                {/*      </div>*/}
-                {/*      {!header.isPlaceholder && header.column.getCanPin() && (*/}
-                {/*        <div className="flex gap-1 justify-center">*/}
-                {/*          {header.column.getIsPinned() !== 'left' ? (*/}
-                {/*            <button*/}
-                {/*              className="border rounded px-2"*/}
-                {/*              onClick={() => {*/}
-                {/*                header.column.pin('left')*/}
-                {/*              }}*/}
-                {/*            >*/}
-                {/*              {'<='}*/}
-                {/*            </button>*/}
-                {/*          ) : null}*/}
-                {/*          {header.column.getIsPinned() ? (*/}
-                {/*            <button*/}
-                {/*              className="border rounded px-2"*/}
-                {/*              onClick={() => {*/}
-                {/*                header.column.pin(false)*/}
-                {/*              }}*/}
-                {/*            >*/}
-                {/*              X*/}
-                {/*            </button>*/}
-                {/*          ) : null}*/}
-                {/*          {header.column.getIsPinned() !== 'right' ? (*/}
-                {/*            <button*/}
-                {/*              className="border rounded px-2"*/}
-                {/*              onClick={() => {*/}
-                {/*                header.column.pin('right')*/}
-                {/*              }}*/}
-                {/*            >*/}
-                {/*              {'=>'}*/}
-                {/*            </button>*/}
-                {/*          ) : null}*/}
-                {/*        </div>*/}
-                {/*      )}*/}
-                {/*      <div*/}
-                {/*        {...{*/}
-                {/*          onDoubleClick: () => header.column.resetSize(),*/}
-                {/*          onMouseDown: header.getResizeHandler(),*/}
-                {/*          onTouchStart: header.getResizeHandler(),*/}
-                {/*          className: `resizer ${*/}
-                {/*            header.column.getIsResizing() ? 'isResizing' : ''*/}
-                {/*          }`,*/}
-                {/*        }}*/}
-                {/*      />*/}
-                {/*      {!header.isPlaceholder && header.column.getCanFilter() ? (*/}
-                {/*        <input*/}
-                {/*          value={(header.column.getFilterValue() ?? '') as string}*/}
-                {/*          onChange={e => header.column.setFilterValue(e.target.value)}*/}
-                {/*          placeholder={`Search...`}*/}
-                {/*        />*/}
-                {/*      ) : null}*/}
-                {/*    </th>*/}
-                {/*  )*/}
-                {/*})}*/}
-              </tr>
-            ))}
-            </thead>
-            <tbody>
-
-            {/*{table.getRowModel().rows.map((row) => (*/}
-            {/*  <tr key={row.id}>*/}
-            {/*    {row.getVisibleCells().map((cell) => (*/}
-            {/*      <SortableContext*/}
-            {/*        key={cell.id}*/}
-            {/*        items={columnOrder}*/}
-            {/*        strategy={horizontalListSortingStrategy}*/}
-            {/*      >*/}
-            {/*        <DragAlongCell key={cell.id} cell={cell} />*/}
-            {/*      </SortableContext>*/}
-            {/*    ))}*/}
-            {/*  </tr>*/}
-            {/*))}*/}
-
-            {table.getTopRows().map(row => (
-              <tr key={row.id}
-                  style={{
-                    backgroundColor: 'lightblue', position: 'sticky',
-                    top: row.getIsPinned() === 'top' ? `${row.getPinnedIndex() * 28 + 78}px` : undefined,
-                    zIndex: 5,
-                  }}
-              >
-                {row.getVisibleCells().map((cell) => (
-                  <SortableContext
-                    key={cell.id}
-                    items={columnOrder}
-                    strategy={horizontalListSortingStrategy}
-                  >
-                    <DragAlongCell key={cell.id} cell={cell}/>
-                  </SortableContext>
-                  // <td key={cell.id}>{flexRender(cell.column.columnDef.cell, cell.getContext())}</td>
-                ))}
-              </tr>
-            ))}
-
-            {table.getCenterRows().map(row => {
-              return (
-                <Fragment key={row.id}>
-                  <tr onClick={row.getToggleExpandedHandler()} style={{cursor: 'pointer'}}>
-                    {row.getVisibleCells().map((cell) => {
-                      const {column} = cell
-                      return (
-                        <SortableContext
-                          key={cell.id}
-                          items={columnOrder}
-                          strategy={horizontalListSortingStrategy}
-                        >
-                          <DragAlongCell key={cell.id} cell={cell}/>
-                        </SortableContext>
-                        // <td
-                        //   key={cell.id}
-                        //   //IMPORTANT: This is where the magic happens!
-                        //   style={{...getCommonPinningStyles(column)}}
-                        // >
-                        //   {flexRender(
-                        //     cell.column.columnDef.cell,
-                        //     cell.getContext()
-                        //   )}
-                        // </td>
-                      )
-                    })}
-                  </tr>
-                  {row.getIsExpanded() && (
-                    <tr>
-                      <td colSpan={row.getVisibleCells().length}>
-                    <pre style={{fontSize: '10px'}}>
-                      <code>{JSON.stringify(row.original, null, 2)}</code>
-                    </pre>
-                        <div>{row.id}</div>
-                        <div>{row.getVisibleCells().length}</div>
-                        <div>{row.getAllCells().length}</div>
-                        <div>{row.getCanSelect() ? 'yes' : 'no'}</div>
-                        <div>{row.getCanExpand() ? 'yes' : 'no'}</div>
-                        <div>{row.getIsExpanded() ? 'yes' : 'no'}</div>
-                      </td>
-                    </tr>
-                  )}
-                </Fragment>
-              )
-            })}
-
-            {table.getBottomRows().map(row => (
-              <tr key={row.id}
-                  style={{
-                    backgroundColor: 'lightblue', position: 'sticky',
-                    bottom: row.getIsPinned() === 'bottom' ? `${(table.getBottomRows().length - 1 - row.getPinnedIndex()) * 28}px` : undefined,
-                    zIndex: 5,
-                  }}
-              >
-                {row.getVisibleCells().map((cell) => (
-                  <SortableContext
-                    key={cell.id}
-                    items={columnOrder}
-                    strategy={horizontalListSortingStrategy}
-                  >
-                    <DragAlongCell key={cell.id} cell={cell}/>
-                  </SortableContext>
-                  // <td key={cell.id}>{flexRender(cell.column.columnDef.cell, cell.getContext())}</td>
-                ))}
-              </tr>
-            ))}
-            </tbody>
-          </table>
-        </div>
-
-      </DndContext>
-
-
-      <div className="h-2"/>
-      <div className="flex items-center gap-2">
-        <button
-          className="border rounded p-1"
-          onClick={() => table.firstPage()}
-          disabled={!table.getCanPreviousPage()}
-        >
-          {'<<'}
-        </button>
-        <button
-          className="border rounded p-1"
-          onClick={() => table.previousPage()}
-          disabled={!table.getCanPreviousPage()}
-        >
-          {'<'}
-        </button>
-        <button
-          className="border rounded p-1"
-          onClick={() => table.nextPage()}
-          disabled={!table.getCanNextPage()}
-        >
-          {'>'}
-        </button>
-        <button
-          className="border rounded p-1"
-          onClick={() => table.lastPage()}
-          disabled={!table.getCanNextPage()}
-        >
-          {'>>'}
-        </button>
-        <span className="flex items-center gap-1">
-          <div>Page</div>
-          <strong>
-            {table.getState().pagination.pageIndex + 1} of{' '}
-            {table.getPageCount().toLocaleString()}
-          </strong>
-        </span>
-        <span className="flex items-center gap-1">
-          | Go to page:
-          <input
-            type="number"
-            min="1"
-            max={table.getPageCount()}
-            defaultValue={table.getState().pagination.pageIndex + 1}
-            onChange={e => {
-              const page = e.target.value ? Number(e.target.value) - 1 : 0
-              table.setPageIndex(page)
-            }}
-            className="border p-1 rounded w-16"
-          />
-        </span>
-        <select
-          value={table.getState().pagination.pageSize}
-          onChange={e => {
-            table.setPageSize(Number(e.target.value))
-          }}
-        >
-          {[10, 20, 30, 40, 50].map(pageSize => (
-            <option key={pageSize} value={pageSize}>
-              Show {pageSize}
-            </option>
-          ))}
-        </select>
-        {dataQuery.isFetching ? 'Loading...' : null}
-      </div>
-      <div>
-        Showing {table.getRowModel().rows.length.toLocaleString()} of{' '}
-        {dataQuery.data?.rowCount.toLocaleString()} Rows
-      </div>
-      <pre>{JSON.stringify(pagination, null, 2)}</pre>
-      <pre>{JSON.stringify(columnPinning, null, 2)}</pre>
-      <pre>{JSON.stringify(sorting, null, 2)}</pre>
-      <pre>{JSON.stringify(columnFilters, null, 2)}</pre>
-      <pre>{JSON.stringify(rowSelection, null, 2)}</pre>
-      <pre>{JSON.stringify(rowPinning, null, 2)}</pre>
-      <pre>{JSON.stringify(columnVisibility, null, 2)}</pre>
-      <pre>{JSON.stringify(table.getState().columnOrder, null, 2)}</pre>
-    </div>
-  )
-}
-
-export default function DemoTable() {
-  return (
-    <QueryClientProvider client={queryClient}>
-      <TableMainUI/>
-    </QueryClientProvider>
-  )
-}
+                {/*{headerGroup.headers.map(header => {
+                const {column} = header
+                return (
+                <th
+                key={header.id}
+                colSpan={header.colSpan}
+                //IMPORTANT: This is where the magic happens!
+                style={{...getCommonPinningStyles(column)}}
+                >
+                <div className="whitespace-nowrap">
+                {header.isPlaceholder ? null : (
+                <div
+                className={header.column.getCanSort() ? 'cursor-pointer select-none' : ''}
+                onClick={header.column.getToggleSortingHandler()}
+                title={header.column.getCanSort() ? header.column.getNextSortingOrder() === 'asc' ? 'Sort ascending' : header.column.getNextSortingOrder() === 'desc' ? 'Sort descen[...]**
